@@ -41,6 +41,9 @@
 struct gl_context;
 struct gl_texture_image;
 
+extern void _mesa_warn_incomplete_texture(struct gl_context *ctx, int unit,
+                                          GLenum target);
+
 extern void _mesa_print_enable_flags( const char *msg, GLuint flags );
 extern void _mesa_print_state( const char *msg, GLuint state );
 extern void _mesa_print_info( struct gl_context *ctx );

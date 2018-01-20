@@ -41,6 +41,7 @@
 #include "state.h"
 #include "util/bitscan.h"
 #include "util/bitset.h"
+#include "debug.h"
 
 
 /**
@@ -702,6 +703,10 @@ update_single_program_texture(struct gl_context *ctx, struct gl_program *prog,
    texObj = _mesa_get_fallback_texture(ctx, target_index);
    assert(texObj);
 
+   if (unlikely(ctx->Const.ContextFlags & GL_CONTEXT_FLAG_DEBUG_BIT))
+      _mesa_warn_incomplete_texture(ctx, unit,
+                                    tex_target_from_index(target_index));
+
    return texObj;
 }
 
@@ -831,6 +836,9 @@ update_ff_texture_state(struct gl_context *ctx,
             complete = true;
             break;
          }
+         if (unlikely(ctx->Const.ContextFlags & GL_CONTEXT_FLAG_DEBUG_BIT))
+            _mesa_warn_incomplete_texture(ctx, unit,
+                                          tex_target_from_index(texIndex));
       }
 
       if (!complete)

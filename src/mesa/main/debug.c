@@ -69,6 +69,17 @@ tex_target_name(GLenum tgt)
 
 
 void
+_mesa_warn_incomplete_texture(struct gl_context *ctx, int unit, GLenum target)
+{
+   static GLuint msg_id;
+   _mesa_gl_debug(ctx, &msg_id, MESA_DEBUG_SOURCE_API, MESA_DEBUG_TYPE_OTHER,
+                  MESA_DEBUG_SEVERITY_NOTIFICATION,
+                  "No complete texture for target %s bound to unit %d found.",
+                  tex_target_name(target), unit);
+}
+
+
+void
 _mesa_print_state( const char *msg, GLuint state )
 {
    _mesa_debug(NULL,
