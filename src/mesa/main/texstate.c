@@ -623,6 +623,34 @@ update_texgen(struct gl_context *ctx)
    }
 }
 
+static GLenum
+tex_target_from_index(gl_texture_index tidx)
+{
+   /* NOTE: these values must be in the same order as the TEXTURE_x_INDEX
+    * values!
+    */
+   static const GLenum targets[] = {
+      GL_TEXTURE_2D_MULTISAMPLE,
+      GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+      GL_TEXTURE_CUBE_MAP_ARRAY,
+      GL_TEXTURE_BUFFER,
+      GL_TEXTURE_2D_ARRAY_EXT,
+      GL_TEXTURE_1D_ARRAY_EXT,
+      GL_TEXTURE_EXTERNAL_OES,
+      GL_TEXTURE_CUBE_MAP,
+      GL_TEXTURE_3D,
+      GL_TEXTURE_RECTANGLE_NV,
+      GL_TEXTURE_2D,
+      GL_TEXTURE_1D,
+   };
+
+   STATIC_ASSERT(ARRAY_SIZE(targets) == NUM_TEXTURE_TARGETS);
+   assert(targets[TEXTURE_2D_INDEX] == GL_TEXTURE_2D);
+   assert(targets[TEXTURE_CUBE_INDEX] == GL_TEXTURE_CUBE_MAP);
+
+   return targets[tidx];
+}
+
 static struct gl_texture_object *
 update_single_program_texture(struct gl_context *ctx, struct gl_program *prog,
                               int unit)
@@ -927,32 +955,12 @@ _mesa_update_texture_state(struct gl_context *ctx)
 static GLboolean
 alloc_proxy_textures( struct gl_context *ctx )
 {
-   /* NOTE: these values must be in the same order as the TEXTURE_x_INDEX
-    * values!
-    */
-   static const GLenum targets[] = {
-      GL_TEXTURE_2D_MULTISAMPLE,
-      GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
-      GL_TEXTURE_CUBE_MAP_ARRAY,
-      GL_TEXTURE_BUFFER,
-      GL_TEXTURE_2D_ARRAY_EXT,
-      GL_TEXTURE_1D_ARRAY_EXT,
-      GL_TEXTURE_EXTERNAL_OES,
-      GL_TEXTURE_CUBE_MAP,
-      GL_TEXTURE_3D,
-      GL_TEXTURE_RECTANGLE_NV,
-      GL_TEXTURE_2D,
-      GL_TEXTURE_1D,
-   };
    GLint tgt;
-
-   STATIC_ASSERT(ARRAY_SIZE(targets) == NUM_TEXTURE_TARGETS);
-   assert(targets[TEXTURE_2D_INDEX] == GL_TEXTURE_2D);
-   assert(targets[TEXTURE_CUBE_INDEX] == GL_TEXTURE_CUBE_MAP);
 
    for (tgt = 0; tgt < NUM_TEXTURE_TARGETS; tgt++) {
       if (!(ctx->Texture.ProxyTex[tgt]
-            = ctx->Driver.NewTextureObject(ctx, 0, targets[tgt]))) {
+            = ctx->Driver.NewTextureObject(ctx, 0,
+                                           tex_target_from_index(tgt)))) {
          /* out of memory, free what we did allocate */
          while (--tgt >= 0) {
             ctx->Driver.DeleteTexture(ctx, ctx->Texture.ProxyTex[tgt]);
